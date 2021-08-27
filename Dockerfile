@@ -1,5 +1,6 @@
-FROM qgis/qgis:latest
-RUN apt install osm2pgsql -y
+FROM python:latest
+RUN apt-get update
+RUN apt-get install osm2pgsql -y
 RUN mkdir "app"
 COPY app app
 WORKDIR /app
