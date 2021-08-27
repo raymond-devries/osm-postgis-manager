@@ -20,3 +20,7 @@ def upload():
         filename = secure_filename(f.filename)
         f.save(f"osm_files/{filename}")
         return home()
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host="0.0.0.0")

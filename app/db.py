@@ -36,7 +36,3 @@ def import_osm(path_name: str, db_name: str):
         "ALTER TABLE planet_osm_roads ADD gid serial PRIMARY KEY;",
         db_name,
     )
-
-
-if __name__ == "__main__":
-    import_osm("osm_files/example.osm")
