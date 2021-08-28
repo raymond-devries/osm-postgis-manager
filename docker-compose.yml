@@ -1,7 +1,7 @@
 version: '3'
 services:
   web:
-    build: .
+    image: ghcr.io/raymond-devries/osm-postgis-manager-web:latest
     environment:
       FLASK_DEBUG: 1
       FLASK_APP: ./app.py
