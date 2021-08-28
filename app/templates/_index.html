@@ -1,0 +1,136 @@
+<div class="content" id="content">
+    <h1>Osm to QGIS</h1>
+    <h4>Use this nifty tool to seamlessly create/manage a POSTGIS databases created from osm files.</h4>
+    <hr>
+    {% for error in errors %}
+        <article class="message is-danger">
+            <div class="message-header">
+                <p>Error</p>
+            </div>
+            <div class="message-body">
+                {{ error }}
+            </div>
+        </article>
+    {% endfor %}
+    <div class="columns">
+        <div class="column is-half">
+            <h5>Upload OSM File</h5>
+            <form hx-encoding=multipart/form-data id="upload-form"
+                  x-data="{fileName: 'No file selected'}" hx-post="/upload" hx-swap="outerHTML" hx-target="#content">
+                <div class="file has-name mb-4">
+                    <label class="file-label">
+                        <input class="file-input" type="file" accept=".osm" @change="fileName = $el.files.item(0).name"
+                               name="osm_file">
+                        <span class="file-cta">
+                            <span class="file-label">
+                Choose a file…
+              </span>
+                        </span>
+                        <span class="file-name" x-text="fileName">No file selected</span>
+                    </label>
+                </div>
+                <button class="button is-primary">
+                    Upload
+                </button>
+            </form>
+            <div class="mt-4" x-data="{modal_visible: false, file_name: null}">
+                <h5>Osm Files</h5>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th></th>
+                        <th></th>
+                    </tr>
+                    {% for file in osm_files %}
+                        <tr>
+                            <td>{{ file }}</td>
+                            <td>
+                                <button class="button is-link" @click="modal_visible=true; file_name=$el.value"
+                                        value="{{ file }}">
+                                    Create Database From File
+                                </button>
+                            </td>
+                            <td>
+                                <button class="button is-danger"
+                                        hx-delete="{{ url_for("delete_file", file_name=file) }}"
+                                        hx-swap="outerHTML"
+                                        hx-target="#content"
+                                        x-data="{loading: false}"
+                                        @click="loading=true"
+                                        :class="loading && 'is-loading'">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+                <div class="modal is-active" x-show="modal_visible">
+                    <div class="modal-background" @click="modal_visible=false"></div>
+                    <div class="modal-content box">
+                        <h5 class="title is-4">Make database from file: <strong x-text="file_name"></strong></h5>
+                        <hr>
+                        <form hx-post="{{ url_for("create_db_from_file") }}" hx-post="outerHTML" hx-target="#content">
+                            <input type="hidden" :value="file_name" name="file_name">
+                            <div class="field">
+                                <label class="label">Database Name</label>
+                                <div class="control"><input class="input" type="text" name="db_name"></div>
+                            </div>
+                            <button class="button is-primary" x-data="{loading: false}" @click="loading=true"
+                                    :class="loading && 'is-loading'">
+                                Make Database From File
+                            </button>
+                            <button class="button is-dark" @click.prevent="modal_visible=false">
+                                Cancel
+                            </button>
+                        </form>
+                    </div>
+                    <button class="modal-close is-large" aria-label="close" @click="modal_visible=false">
+                    </button>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="column is-half">
+            <h2>Database Settings</h2>
+            <table>
+                <tr>
+                    <th>Host</th>
+                    <th>Port</th>
+                    <th>Username</th>
+                    <th>Password</th>
+                </tr>
+                <tr>
+                    <td>{{ host }}</td>
+                    <td>{{ port }}</td>
+                    <td>{{ user }}</td>
+                    <td>{{ password }}</td>
+                </tr>
+            </table>
+            <h2>Databases</h2>
+            <table>
+                <tr>
+                    <th>Database Name</th>
+                    <th>URI</th>
+                    <th></th>
+                </tr>
+                {% for db in databases %}
+                    <tr>
+                        <td>{{ db }}</td>
+                        <td>postgresql://{{ user }}:{{ password }}@{{ host }}:{{ port }}/{{ db }}</td>
+                        <td>
+                            <button class="button is-danger"
+                                    hx-delete="{{ url_for("drop_db", db_name=db) }}"
+                                    hx-swap="outerHTML"
+                                    hx-target="#content"
+                                    x-data="{loading: false}"
+                                    @click="loading=true"
+                                    :class="loading && 'is-loading'">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+</div>

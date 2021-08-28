@@ -5,10 +5,14 @@ services:
     environment:
       FLASK_DEBUG: 1
       FLASK_APP: ./app.py
-    volumes:
-      - './app:/app'
+      PGPASSWORD: qgis
+      LOCAL_POSTGRES_PORT: 5433
     ports:
       - "5000:5000"
+    depends_on:
+      - db
+    volumes:
+      - osm_files:/app/osm_files
 
   db:
     image: postgis/postgis
@@ -17,4 +21,8 @@ services:
     ports:
       - "5433:5432"
     volumes:
-      - ./postgres-data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
+  osm_files:
